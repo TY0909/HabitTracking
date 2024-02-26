@@ -13,6 +13,7 @@ struct ContentView: View {
     @Query var habits: [Habit]
     @State private var showAddAlert = false
     @State private var showEditAlert = false
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
     var body: some View {
         NavigationStack {
@@ -46,6 +47,19 @@ struct ContentView: View {
                     modelContext.insert(newHabit)
                 }
             }
+            .onReceive(timer, perform: { _ in
+                for habit in habits {
+                    if habit.isTodayComplete {
+                        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: habit.lastCheckDay)!
+                        let tomorrowStart = Calendar.current.startOfDay(for: tomorrow)
+                        if Date() > tomorrowStart {
+                            withAnimation {
+                                habit.isTodayComplete.toggle()
+                            }
+                        }
+                    }
+                }
+            })
         }
     }
 }

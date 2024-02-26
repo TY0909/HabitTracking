@@ -27,7 +27,6 @@ struct HabitView: View {
                         habit.isTodayComplete.toggle()
                         habit.lastCheckDay = Date()
                         habit.lastDays += 1
-                        refreshStatus()
                     }
                 } label: {
                     Text(habit.isTodayComplete ? "Complete" : "Check")
@@ -39,26 +38,7 @@ struct HabitView: View {
                 .disabled(habit.isTodayComplete)
             }
             .font(.footnote)
-            .onAppear {
-                refreshStatus()
-            }
         }
-    }
-
-    func refreshStatus() {
-        guard habit.isTodayComplete == true else { return }
-        let now = Date()
-        let calendar = Calendar.current
-        guard let tomorrow = calendar.date(byAdding: .day, value: 1, to: habit.lastCheckDay) else { return }
-        let tomorrowStart = calendar.startOfDay(for: tomorrow)
-        let timeInterval = tomorrowStart.timeIntervalSince(now)
-        
-        let timer = Timer.scheduledTimer(withTimeInterval: timeInterval, repeats: false) { _ in
-            withAnimation {
-                habit.isTodayComplete.toggle()
-            }
-        }
-        RunLoop.main.add(timer, forMode: .common)
     }
 }
 
